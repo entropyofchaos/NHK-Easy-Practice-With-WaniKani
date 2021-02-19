@@ -6,7 +6,6 @@
 // @author        Brian Lichtman
 // @include       https://www3.nhk.or.jp/news/easy*
 // @grant         none
-// @require       http://code.jquery.com/jquery-3.4.1.min.js
 // @license       GPL version 3 or later: http://www.gnu.org/copyleft/gpl.html
 // ==/UserScript==
 
