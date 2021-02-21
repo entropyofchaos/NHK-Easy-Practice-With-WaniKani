@@ -3,8 +3,10 @@
 // @namespace     https://github.com/entropyofchaos/NHK-Easy-Practice-With-WaniKani
 // @version       0.1
 // @description   Dynamically hides furigana on NHK Easy website based on a user's Kanji and Vocabulary that are at at least Guru 1.
+//                Also works with hiragana.jp which attempts to add furigana to any Japanese website.
 // @author        Brian Lichtman
 // @include       https://www3.nhk.or.jp/news/easy*
+// @include       https://trans.hiragana.jp/*
 // @grant         none
 // @license       GPL version 3 or later: http://www.gnu.org/copyleft/gpl.html
 // ==/UserScript==
@@ -23,12 +25,18 @@ window.addEventListener("load", function () {
  * furigana.
  */
 async function handleUpdatingPage() {
-  // Get the known vocab and kanji for the user
-  const knownVocab = new Set();
-  await getAssignments(knownVocab);
+  if (apiToken === "put-your-api-token-here") {
+    alert(
+      "Please edit this script with your WaniKani API Token. The script is unable to function without it."
+    );
+  } else {
+    // Get the known vocab and kanji for the user
+    const knownVocab = new Set();
+    await getAssignments(knownVocab);
 
-  // Update the webpage to hide the furigana for the passed in list of vocab and kanji.
-  findRuby(knownVocab);
+    // Update the webpage to hide the furigana for the passed in list of vocab and kanji.
+    findRuby(knownVocab);
+  }
 }
 
 /**
@@ -116,7 +124,9 @@ async function getAssignments(knownVocab) {
     });
 
     // Get the assignments
-    const response = await fetch(apiEndpoint, {});
+    const response = await fetch(apiEndpoint, {}).catch(function (error) {
+      console.log(error);
+    });
     const jsonData = await response.json();
 
     nextPage = jsonData.pages.next_url;
@@ -168,7 +178,9 @@ async function lookupVocab(subjectIds, vocabSet) {
     });
 
     // Get the subjects from WK
-    const response = await fetch(apiEndpoint, {});
+    const response = await fetch(apiEndpoint, {}).catch(function (error) {
+      console.log(error);
+    });
     const jsonData = await response.json();
 
     nextPage = jsonData.pages.next_url;
