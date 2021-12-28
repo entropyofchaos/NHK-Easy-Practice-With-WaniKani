@@ -7,11 +7,12 @@
 // @author        Brian Lichtman
 // @include       https://www3.nhk.or.jp/news/easy*
 // @include       https://trans.hiragana.jp/*
-// @grant         none
+// @grant         GM.getValue
+// @grant         GM.setValue
 // @license       GPL version 3 or later: http://www.gnu.org/copyleft/gpl.html
 // ==/UserScript==
 
-var apiToken = "put-your-api-token-here";
+var apiToken;
 
 // Wait until page finishes loading before trying to overwrite content on the
 // NHK Easy website
@@ -25,9 +26,11 @@ window.addEventListener("load", function () {
  * furigana.
  */
 async function handleUpdatingPage() {
-  if (apiToken === "put-your-api-token-here") {
+  apiToken = await getApiToken();
+
+  if (!apiToken) {
     alert(
-      "Please edit this script with your WaniKani API Token. The script is unable to function without it."
+      "The WaniKani API Token appears to be invalid. The user script \"NHK Easy Practice With WaniKani\" will not be loaded."
     );
   } else {
     // Get the known vocab and kanji for the user
@@ -202,4 +205,39 @@ function addVocabFromSubjects(subjectsAsJson, vocabSet) {
   subjectsAsJson.data.forEach((subject) => {
     vocabSet.add(subject.data.slug);
   });
+}
+
+/**
+ * Function that gets the api token from storage if it exists.
+ * If it doesn't exist, the user is prompted to enter their api token.
+ * The newly entered api token is validated by hitting an arbitrary endpoint and making sure
+ * an ok response comes back.
+ * If the newly entered api token is valid, it is set in the storage.
+ * @returns A valid api token, or undefined if the newly entered api token is invalid
+ */
+async function getApiToken() {
+  const existingToken = await GM.getValue("WK_API_TOKEN");
+  if (existingToken) {
+    return existingToken;
+  }
+
+  const apiTokenFromUser = prompt("Please enter your WaniKani API Token to continue:");
+
+  const apiEndpoint = new Request(decodeURIComponent("https://api.wanikani.com/v2/voice_actors"), {
+    method: "GET",
+    headers: new Headers({
+      Authorization: "Bearer " + apiTokenFromUser,
+    })
+  });
+
+  const response = await fetch(apiEndpoint, {}).catch(function (error) {
+    console.log(error);
+  });
+
+  if (response.ok) {
+    GM.setValue("WK_API_TOKEN", apiTokenFromUser);
+    return apiTokenFromUser;
+  }
+
+  return undefined;
 }
