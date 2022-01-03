@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          NHK Easy Practice With WaniKani
 // @namespace     https://github.com/entropyofchaos/NHK-Easy-Practice-With-WaniKani
-// @version       0.1
+// @version       0.2
 // @description   Dynamically hides furigana on NHK Easy website based on a user's Kanji and Vocabulary that are at at least Guru 1.
 //                Also works with hiragana.jp which attempts to add furigana to any Japanese website.
 // @author        Brian Lichtman
