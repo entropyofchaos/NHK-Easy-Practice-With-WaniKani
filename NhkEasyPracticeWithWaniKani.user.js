@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          NHK Easy Practice With WaniKani
 // @namespace     https://github.com/entropyofchaos/NHK-Easy-Practice-With-WaniKani
-// @version       0.2
+// @version       0.3
 // @description   Dynamically hides furigana on NHK Easy website based on a user's Kanji and Vocabulary that are at at least Guru 1.
 //                Also works with hiragana.jp which attempts to add furigana to any Japanese website.
 // @author        Brian Lichtman
@@ -38,7 +38,12 @@ async function handleUpdatingPage() {
     await getAssignments(knownVocab);
 
     // Update the webpage to hide the furigana for the passed in list of vocab and kanji.
-    findRuby(knownVocab);
+    findRubyInPage(knownVocab);
+
+    // Update NHK Easy's pop-up dictionary if it exists on the page.
+    if (typeof g_dic !== "undefined") {
+      findRubyInDictionary(knownVocab);
+    }
   }
 }
 
@@ -47,7 +52,7 @@ async function handleUpdatingPage() {
  * the passed in set of known vocabulary.
  * @param {Set} knownVocab Set of all vocab that has been learned on WK
  */
-function findRuby(knownVocab) {
+function findRubyInPage(knownVocab) {
   const theRubyElements = this.document.querySelectorAll("ruby");
 
   theRubyElements.forEach((foundWord) => {
@@ -59,6 +64,26 @@ function findRuby(knownVocab) {
 
       rubyText.style.visibility = "hidden";
     }
+  });
+}
+
+/**
+ * Finds the Ruby tags in NHK Easy's pop-up dictionary and replaces them with 
+ * just the word if the word is in the known set of vocabulary.
+ * @param {Set} knownVocab Set of all vocab that has been learned on WK
+ */
+function findRubyInDictionary(knownVocab) {
+  const rubyElementMatcherExp = /<ruby><rb>([^<]*)<\/rb><rt>[^<]*<\/rt><\/ruby>/g;
+
+  Object.keys(g_dic.reikai.entries).forEach(entryKey => {
+    g_dic.reikai.entries[entryKey].map(entryValues => {
+      entryValues.def = entryValues.def.replaceAll(
+        rubyElementMatcherExp,
+        (rubyElement, word) => knownVocab.has(word) ? word : rubyElement
+      );
+
+      return entryValues;
+    });
   });
 }
 

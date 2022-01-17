@@ -8,6 +8,9 @@ module.exports = {
         "eslint:recommended",
         "plugin:react/recommended"
     ],
+    "globals": {
+        "g_dic": "writeable"
+    },
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
