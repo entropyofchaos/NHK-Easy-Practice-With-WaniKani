@@ -68,8 +68,8 @@ function findRubyInPage(knownVocab) {
 }
 
 /**
- * Finds the Ruby tags in NHK Easy's pop-up dictionary and replaces them with 
- * just the word if the word is in the known set of vocabulary.
+ * Finds the Ruby tags in NHK Easy's pop-up dictionary and hides the tags
+ * that match words in the passed in set of known vocabulary.
  * @param {Set} knownVocab Set of all vocab that has been learned on WK
  */
 function findRubyInDictionary(knownVocab) {
@@ -79,7 +79,9 @@ function findRubyInDictionary(knownVocab) {
     g_dic.reikai.entries[entryKey].map(entryValues => {
       entryValues.def = entryValues.def.replaceAll(
         rubyElementMatcherExp,
-        (rubyElement, word) => knownVocab.has(word) ? word : rubyElement
+        (rubyElement, word) => knownVocab.has(word)
+          ? rubyElement.replace("<rt>", "<rt style=\"visibility: hidden;\">")
+          : rubyElement
       );
 
       return entryValues;
